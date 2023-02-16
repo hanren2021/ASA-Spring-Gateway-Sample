@@ -54,13 +54,107 @@ az spring app create `
      @SpringBootApplication
      @EnableEurekaClient
      public class DemoApplication {
-
 	      public static void main(String[] args) {
 		     SpringApplication.run(DemoApplication.class, args);
 	      }
-
      }
      ```
+
+   - Create a new HelloController.java file in the same folder as DemoApplication.java.
      ```
+     package com.gatewayexample.demo;
+
+     import org.springframework.web.bind.annotation.GetMapping;
+     import org.springframework.web.bind.annotation.RestController;
+
+     @RestController
+     public class HelloController {
+
+	  @GetMapping("/demo1")
+	  public String index() {
+		return "Greetings from demo 1!";
+	  }
+     }   
+     ```
+   
+    - Run Maven command to build the project
+    
+      ```
+      mvn clean package -DskipTests
+      ```
+      
+      There should be a demo-0.0.1-SNAPSHOT.jar file generated under the ./target/ folder
+      
+-  Use the following command to deploy your "demo1" Azure Spring App.
+   ```
+   az spring app deploy `
+       --resource-group <name-of-resource-group> `
+       --service <service-instance-name> `
+       --name demo1 `
+       --artifact-path <file path to demo-0.0.1-SNAPSHOT.jar> `
+       --runtime-version Java_17 `
+       --jvm-options '-Xms512m -Xmx800m'
+   ```
+
+- Test you demo1 Azure Spring App
+  Navigate to https://demo1.xxx.xxx.azurecontainerapps.io/demo1, you should be able the get the response like this:
+  
+  ![image](https://user-images.githubusercontent.com/90367028/219304161-31e5b0e9-e6c3-4aeb-bbb5-b666e0a22eb5.png)
 
 
+### Step 2: Create an App called "demo2" in the Azure Spring Apps Consumption Tier service instance
+- Use the following command to specify the app name on Azure Spring Apps as "demo2".
+  ```
+  az spring app create `
+      --resource-group <name-of-resource-group> `
+      --service <service-instance-name> `
+      --name demo2 `
+      --cpu 500m `
+      --memory 1Gi `
+      --instance-count 1 `
+      --assign-endpoint true
+  ```
+
+- Make a slight change in the HelloController.java file we just created in **step 1**
+  ```
+  package com.gatewayexample.demo;
+
+  import org.springframework.web.bind.annotation.GetMapping;
+  import org.springframework.web.bind.annotation.RestController;
+
+  @RestController
+  public class HelloController {
+
+	  @GetMapping("/demo2")
+	  public String index() {
+	  	return "Greetings from demo 2!";
+	  }
+
+  }
+  ```
+  
+  You can also change the package version number to **0.0.2-SNAPSHOT** in your pom.xml like this:
+  ```
+  <groupId>com.gatewayexample</groupId>
+  <artifactId>demo</artifactId>
+  <version>0.0.2-SNAPSHOT</version>
+  <name>demo</name>
+  ```
+  
+- Run Maven command to build the project
+
+  ```
+  mvn package -DskipTests
+  ```
+  There should be a demo-0.0.2-SNAPSHOT.jar file generated under the ./target/ folder
+      
+- Use the following command to deploy your "demo2" Azure Spring App.
+  ```
+  az spring app deploy `
+       --resource-group <name-of-resource-group> `
+       --service <service-instance-name> `
+       --name demo2 `
+       --artifact-path <file path to demo-0.0.2-SNAPSHOT.jar> `
+       --runtime-version Java_17 `
+       --jvm-options '-Xms512m -Xmx800m'
+  ```
