@@ -1,0 +1,12 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: demo_one
+          uri: lb://demo1
+          predicates:
+            - Path=/demo1/**
+        - id: demo_two
+          uri: lb://demo2
+          predicates:
+            - Path=/demo2/**
