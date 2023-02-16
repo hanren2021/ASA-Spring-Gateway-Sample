@@ -29,7 +29,38 @@ az spring app create `
 
 - Build the Spring Boot sample project
    - Navigate to https://start.spring.io. This service pulls in all the dependencies you need for an application and does most of the setup for you.
-   - Choose Maven and the Java version you want to use. 
-   - Click Dependencies and select Spring Web.
-   - Click Generate.
-   - Download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
+   - Choose Maven, Spring Boot, Java version you want to use. 
+   - Click Dependencies and select **Spring Web** and **Eureka Discovery Client**.
+   - Click Generate and download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
+   
+   ![image](https://user-images.githubusercontent.com/90367028/219294377-47ba3fc2-6a65-46bf-a358-adbcc0ab9863.png)
+   
+   - Make sure the following dependency can be found in the pom.xml file
+     ```
+     <dependency>
+       <groupId>org.springframework.cloud</groupId>
+       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+     </dependency>
+     ```
+     
+   - Add an annotation (@EnableEurekaClient) to the top level class of your application, as shown in the following example:
+     ```
+     package com.gatewayexample.demo;
+
+     import org.springframework.boot.SpringApplication;
+     import org.springframework.boot.autoconfigure.SpringBootApplication;
+     import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+     @SpringBootApplication
+     @EnableEurekaClient
+     public class DemoApplication {
+
+	      public static void main(String[] args) {
+		     SpringApplication.run(DemoApplication.class, args);
+	      }
+
+     }
+     ```
+     ```
+
+
