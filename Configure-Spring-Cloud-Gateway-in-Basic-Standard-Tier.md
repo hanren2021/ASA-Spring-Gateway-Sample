@@ -97,7 +97,7 @@ az spring app create `
    ```
 
 - Test your demo1 Azure Spring App
-  Navigate to https://<instance-name>-demo1.azuremicroservices.io/demo1, you should be able the get the response like this:
+  Navigate to https://[instance-name]-demo1.azuremicroservices.io/demo1, you should be able the get the response like this:
   
   ![image](https://user-images.githubusercontent.com/90367028/219324968-fe4d3efc-1d2c-4d97-bafa-2f1c3ed9773b.png)
 
@@ -161,7 +161,7 @@ az spring app create `
   ```
 
 - Test your demo1 Azure Spring App
-  Navigate to https://<instance-name>-demo2.azuremicroservices.io/demo2, you should be able the get the response like this:
+  Navigate to https://[instance-name]-demo2.azuremicroservices.io/demo2, you should be able the get the response like this:
   
   ![image](https://user-images.githubusercontent.com/90367028/219325325-3c0c807e-cc33-413e-90a9-6e1af995b966.png)
 
@@ -257,10 +257,11 @@ az spring app create `
 	
 	
 - Test your gateway Azure Spring App
-  Navigate to https://<instance-name>-gateway.azuremicroservices.io/demo1, the Spring Cloud gateway should be able to route the request to your demo1 app, and you should be able the get the response like this:
+  
+  Navigate to https://[instance-name]-gateway.azuremicroservices.io/demo1, the Spring Cloud gateway should be able to route the request to your demo1 app, and you should be able the get the response like this:
   
   ![image](https://user-images.githubusercontent.com/90367028/219326127-542fe3a5-06c6-416b-8bca-b993b6d2e024.png)
 
-  Navigate to https://<instance-name>-gateway.azuremicroservices.io/demo2, the Spring Cloud gateway should be able to route the request to your demo2 app, and you should be able the get the response like this:
+  Navigate to https://[instance-name]-gateway.azuremicroservices.io/demo2, the Spring Cloud gateway should be able to route the request to your demo2 app, and you should be able the get the response like this:
   
   ![image](https://user-images.githubusercontent.com/90367028/219326519-80ce73e0-741e-4a8a-8ddf-d05685a5d044.png)
