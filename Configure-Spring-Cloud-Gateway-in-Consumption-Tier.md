@@ -256,6 +256,7 @@ az spring app create `
 
 
 - Test your gateway Azure Spring App
+
   Navigate to https://gateway.xxx.xxx.azurecontainerapps.io/demo1, the Spring Cloud gateway should be able to route the request to your demo1 app, and you should be able the get the response like this:
   
   ![image](https://user-images.githubusercontent.com/90367028/219313455-122d59af-956a-4c50-94f9-95d8e4a59f8a.png)
