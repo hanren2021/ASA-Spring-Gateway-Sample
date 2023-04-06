@@ -1,4 +1,4 @@
-# Configure Spring Cloud Gateway in Consumption Tier
+# Configure Spring Cloud Gateway in Consumption Tier (with Eureka)
 
 This article shows you how to configure Spring Cloud Gateway with Azure Spring Apps Consumption Tier.
 
