@@ -6,7 +6,7 @@ This article shows you how to configure Spring Cloud Gateway with Azure Spring A
 
 ## Prerequisites
 
-- An already provisioned Azure Spring Apps Consumption Tier service instance. For more information, see [Create Azure Spring Apps Consumption Plan](https://github.com/Azure/Azure-Spring-Apps-Consumption-Plan/blob/main/articles/create-asa-standard-gen2.md).
+- An already provisioned Azure Spring Apps Consumption Tier service instance. For more information, see [Create Azure Spring Apps Consumption Plan](https://learn.microsoft.com/en-us/azure/spring-apps/quickstart-provision-standard-consumption-service-instance?tabs=Azure-portal).
 - Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) version 2.28.0 or higher.
 
 ## Deploy Backend Apps
@@ -23,8 +23,7 @@ az spring app create `
     --name demo1 `
     --cpu 500m `
     --memory 1Gi `
-    --instance-count 1 `
-    --assign-endpoint true
+    --instance-count 1
 ```
 
 - Build the Spring Boot sample project
@@ -33,26 +32,27 @@ az spring app create `
    - Click Dependencies and select **Spring Web**.
    - Click Generate and download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
    
-   ![image](https://user-images.githubusercontent.com/90367028/219294377-47ba3fc2-6a65-46bf-a358-adbcc0ab9863.png)
+   ![image](https://user-images.githubusercontent.com/90367028/230283348-5bce3fab-8a1a-4fcf-9de0-b5fc8a3a825c.png)
    
    - The top level class of your application should look like this:
      ```
-     package com.gatewayexample.demo;
-
+     package com.gatewayexample.demo1;
+     
      import org.springframework.boot.SpringApplication;
      import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+     
      @SpringBootApplication
-     public class DemoApplication {
-	      public static void main(String[] args) {
-		     SpringApplication.run(DemoApplication.class, args);
-	      }
+     public class Demo1Application {
+     
+     	public static void main(String[] args) {
+     		SpringApplication.run(Demo1Application.class, args);
+     	}
      }
      ```
 
    - Create a new HelloController.java file in the same folder as DemoApplication.java.
      ```
-     package com.gatewayexample.demo;
+     package com.gatewayexample.demo1;
 
      import org.springframework.web.bind.annotation.GetMapping;
      import org.springframework.web.bind.annotation.RestController;
@@ -73,7 +73,7 @@ az spring app create `
       mvn clean package -DskipTests
       ```
       
-      There should be a demo-0.0.1-SNAPSHOT.jar file generated under the ./target/ folder
+      There should be a demo1-0.0.1-SNAPSHOT.jar file generated under the ./target/ folder
       
 -  Use the following command to deploy your "demo1" Azure Spring App.
    ```
@@ -82,14 +82,30 @@ az spring app create `
        --service <service-instance-name> `
        --name demo1 `
        --artifact-path <file path to demo-0.0.1-SNAPSHOT.jar> `
-       --runtime-version Java_17 `
-       --jvm-options '-Xms512m -Xmx800m'
+       --runtime-version Java_17
    ```
 
-- Test your demo1 Azure Spring App
-  Navigate to https://demo1.xxx.xxx.azurecontainerapps.io/demo1, you should be able the get the response like this:
+- Get your demo1 App's **internal** URL
+
+  In the App Overview page, we can get the App's internal access URL, which can be used by Apps running inside the same container environment to execute internal calls. 
+  https://demo1.internal.[env-name].[region].azurecontainerapps.io
   
-  ![image](https://user-images.githubusercontent.com/90367028/219304161-31e5b0e9-e6c3-4aeb-bbb5-b666e0a22eb5.png)
+  ![image](https://user-images.githubusercontent.com/90367028/230330808-128e5cd8-b7bc-4e65-931c-ad3fac5908a3.png)
+  
+- Test your demo1 Azure Spring App
+
+  To enable client calls to the App from outside the container environment, we need to assign an endpoint to the App. If you do not want the App to be directly called by external clients, we can unassign the endpoint after the test.
+  
+  ![image](https://user-images.githubusercontent.com/90367028/230331162-ca1cbf08-3ee2-436b-af58-44eb99480d8f.png)
+
+  After the endpoint being assigned, we can get an external accessible url like this:
+  https://demo1.[env-name].[region].azurecontainerapps.io
+  
+  ![image](https://user-images.githubusercontent.com/90367028/230329698-55fb47f9-4b41-49dd-afa6-efdc1fe5ef76.png)
+
+  Navigate to https://demo1.[env-name].[region].azurecontainerapps.io/demo1, you should be able the get the response like this:
+  
+  ![image](https://user-images.githubusercontent.com/90367028/230329383-cbe4f5ec-4b13-4d4c-9f7c-38d981fad1fa.png)
 
 
 ### Step 2: Create an App called "demo2" in the Azure Spring Apps Consumption Tier service instance
@@ -101,8 +117,7 @@ az spring app create `
       --name demo2 `
       --cpu 500m `
       --memory 1Gi `
-      --instance-count 1 `
-      --assign-endpoint true
+      --instance-count 1
   ```
 
 - Make a slight change in the HelloController.java file we just created in **step 1**
@@ -145,8 +160,7 @@ az spring app create `
        --service <service-instance-name> `
        --name demo2 `
        --artifact-path <file path to demo-0.0.2-SNAPSHOT.jar> `
-       --runtime-version Java_17 `
-       --jvm-options '-Xms512m -Xmx800m'
+       --runtime-version Java_17
   ```
 
 - Test your demo1 Azure Spring App
@@ -155,7 +169,7 @@ az spring app create `
   ![image](https://user-images.githubusercontent.com/90367028/219306013-cc074f49-9418-4356-8b4d-4330205c1dec.png)
 
 
-### Step 3: Create the Getway App in the Azure Spring Apps Consumption Tier service instance
+### Step 3: Create the Gateway App in the Azure Spring Apps Consumption Tier service instance
 - Use the following command to specify the app name on Azure Spring Apps as "gateway".
 ```
 az spring app create `
@@ -168,13 +182,15 @@ az spring app create `
     --assign-endpoint true
 ```
 
+Note: we use "--assign-endpoint true", since the Gateway App should be the one exposed to clients making direct call from outside. 
+
 - Build the Spring Boot Gateway project
    - Navigate to https://start.spring.io. This service pulls in all the dependencies you need for an application and does most of the setup for you.
    - Choose Maven, Spring Boot, Java version you want to use. 
-   - Click Dependencies and select **Spring Web** , **Eureka Discovery Client** and **Gateway**.
+   - Click Dependencies and select **Spring Web** and **Gateway**.
    - Click Generate and download the resulting ZIP file, which is an archive of a web application that is configured with your choices.
    
-     ![image](https://user-images.githubusercontent.com/90367028/219305653-c359f806-e60b-4820-9f81-67f8ec093fff.png)
+     ![image](https://user-images.githubusercontent.com/90367028/230290018-62842f50-77ac-47c6-b885-be8fb7d4e4d3.png)
 
    - Make sure the following dependencies can be found in the pom.xml file
      ```
@@ -182,22 +198,16 @@ az spring app create `
 		<groupId>org.springframework.cloud</groupId>
 		<artifactId>spring-cloud-starter-gateway</artifactId>
      </dependency>
-     <dependency>
-		<groupId>org.springframework.cloud</groupId>
-		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-     </dependency>
      ```
      
-   - Add an annotation (@EnableEurekaClient) to the top level class of your application, as shown in the following example: 
+   - The top level class of your application should look like this: 
      ```
      package com.gatewayexample.gateway;
 
      import org.springframework.boot.SpringApplication;
      import org.springframework.boot.autoconfigure.SpringBootApplication;
-     import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
      @SpringBootApplication
-     @EnableEurekaClient
      public class GatewayApplication {
 
 	     public static void main(String[] args) {
@@ -210,19 +220,21 @@ az spring app create `
    - Create application.yml file under ./resources/ folder with the following contents
      ```
      spring:
-     cloud:
+      cloud:
        gateway:
          routes:
            - id: demo_one
-             uri: lb://demo1
+             uri: https://demo1.internal.greencoast-10aef815.eastus.azurecontainerapps.io
              predicates:
                - Path=/demo1/**
            - id: demo_two
-             uri: lb://demo2
+             uri: https://demo2.internal.greencoast-10aef815.eastus.azurecontainerapps.io
              predicates:
                - Path=/demo2/**
      ```
      With the above setting, all the requests send to gateway app /demo1 should be routed to App demo1. All the requests send to gateway app /demo2 should be routed to App demo2.
+     
+     Since we are using the internal URL (https://demox.internal.[env-name].[region].azurecontainerapps.io), the traffics between gateway and demo apps will remain inside the container environment.
 
      For more details about about to configure Spring Cloud Gateway, please refer to https://cloud.spring.io/spring-cloud-gateway/reference/html/.
      
@@ -240,17 +252,16 @@ az spring app create `
        --service <service-instance-name> `
        --name gateway `
        --artifact-path <file path to gateway-0.0.1-SNAPSHOT.jar> `
-       --runtime-version Java_17 `
-       --jvm-options '-Xms512m -Xmx800m'
+       --runtime-version Java_17
    ```
 
 
 - Test your gateway Azure Spring App
 
-  Navigate to https://gateway.xxx.xxx.azurecontainerapps.io/demo1, the Spring Cloud gateway should be able to route the request to your demo1 app, and you should be able the get the response like this:
+  Navigate to https://gateway.[env-name].[region].azurecontainerapps.io/demo1, the Spring Cloud gateway should be able to route the request to your demo1 app, and you should be able the get the response like this:
   
-  ![image](https://user-images.githubusercontent.com/90367028/219313455-122d59af-956a-4c50-94f9-95d8e4a59f8a.png)
+  ![image](https://user-images.githubusercontent.com/90367028/230337403-a5831c92-deb8-46b4-b9c3-d31d009c61bb.png)
 
-  Navigate to https://gateway.xxx.xxx.azurecontainerapps.io/demo2, the Spring Cloud gateway should be able to route the request to your demo2 app, and you should be able the get the response like this:
+  Navigate to https://gateway.[env-name].[region].azurecontainerapps.io/demo2, the Spring Cloud gateway should be able to route the request to your demo2 app, and you should be able the get the response like this:
   
-  ![image](https://user-images.githubusercontent.com/90367028/219313599-12ee87b1-0d83-448a-8928-27d9fd22ae78.png)
+  ![image](https://user-images.githubusercontent.com/90367028/230337647-69ebe753-a6b8-4def-9afe-3dee3f5f03ec.png)
