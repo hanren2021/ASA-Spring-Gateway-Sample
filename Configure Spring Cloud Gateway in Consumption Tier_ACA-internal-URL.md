@@ -1,6 +1,6 @@
-# Configure Spring Cloud Gateway in Azure Spring Apps Standard Consumption Plan (with ACA internal URL)
+# Configure Spring Cloud Gateway in Azure Spring Apps Standard consumption plan (with ACA internal URL)
 
-This article shows you how to configure Spring Cloud Gateway with Azure Spring Apps Standard Consumption Plan.
+This article shows you how to configure Spring Cloud Gateway with Azure Spring Apps Standard consumption plan.
 
 [Spring Cloud Gateway](https://cloud.spring.io/spring-cloud-gateway/reference/html/) is an open-source gateway built on top of the Spring Framework, which is designed to handle API requests and provide routing, filtering, and load balancing capabilities for microservices architecture. It serves as a "front door" for multiple microservices, routing incoming requests to the appropriate service and providing cross-cutting concerns such as security, monitoring, and rate limiting.
 
@@ -10,11 +10,11 @@ In this artical, we are going to show an exmple, in which the client can call th
 
 ## Prerequisites
 
-- An already provisioned Azure Spring Apps Standard Consumption Plan. service instance. For more information, see [Create Azure Spring Apps Consumption Plan](https://learn.microsoft.com/en-us/azure/spring-apps/quickstart-provision-standard-consumption-service-instance?tabs=Azure-portal).
+- An already provisioned Azure Spring Apps Standard consumption plan. service instance. For more information, see [Create Azure Spring Apps Consumption Plan](https://learn.microsoft.com/en-us/azure/spring-apps/quickstart-provision-standard-consumption-service-instance?tabs=Azure-portal).
 - Install the [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli) version 2.28.0 or higher.
 
 
-### Step 1: Create the Gateway App in the Azure Spring Apps Standard Consumption Plan service instance
+### Step 1: Create the Gateway App in the Azure Spring Apps Standard consumption plan service instance
 - Use the following command to specify the app name on Azure Spring Apps as "gateway".
 ```
 az spring app create `
@@ -71,16 +71,12 @@ https://gateway.[env-name].[region].azurecontainerapps.io
       cloud:
        gateway:
          routes:
-           - id: demo_one
-             uri: https://demo1.internal.[env-name].[region].azurecontainerapps.io
+           - id: <backend-app-name>
+             uri: <backend-app-uri>
              predicates:
-               - Path=/demo1/**
+               - Path=<predicates-path>
      ```
-     With the above setting, all the requests send to gateway app /demo1 should be routed to App demo1.
-     
-     Since we are using the internal URL (https://demo1.internal.[env-name].[region].azurecontainerapps.io), the traffics between gateway and demo1 apps will remain inside the container environment.
-
-     For more details about about to configure Spring Cloud Gateway, please refer to https://cloud.spring.io/spring-cloud-gateway/reference/html/.
+     For more details about about how to configure Spring Cloud Gateway, please refer to https://cloud.spring.io/spring-cloud-gateway/reference/html/.
      
    - Run Maven command to build the project
     
@@ -100,7 +96,9 @@ https://gateway.[env-name].[region].azurecontainerapps.io
    ```
 
 
-### Step 2: Create an App called "demo1" in the Azure Spring Apps Standard Consumption Plan service instance
+### Step 2: Create an App called "demo1" in the Azure Spring Apps Standard consumption plan service instance
+
+We will now create a backend app to test the gateway connection. To do this, we will create a simple spring web application, then add a predicate in the gateway resource file, so our gateway app can foward the incoming request to this backend app.
 
 - Use the following command to specify the app name on Azure Spring Apps as "demo1".
 ```
@@ -194,7 +192,22 @@ az spring app create `
   
   ![image](https://user-images.githubusercontent.com/90367028/230329383-cbe4f5ec-4b13-4d4c-9f7c-38d981fad1fa.png)
 
-
+- Modify the application.yml file of the **gateway** app, then redeploy and resart the gateway app to activate the changes.
+  ```
+     spring:
+      cloud:
+       gateway:
+         routes:
+           - id: demo_one
+             uri: https://demo1.internal.[env-name].[region].azurecontainerapps.io
+             predicates:
+               - Path=/demo1/**
+  ```
+  With the above setting, all the requests send to gateway app /demo1 should be routed to App demo1.
+     
+  Since we are using the internal URL (https://demo1.internal.[env-name].[region].azurecontainerapps.io), the traffics between gateway and demo1 apps will remain inside the container environment.
+  
+  
 ### Step 3: Test your gateway Azure Spring App
 
   Navigate to https://gateway.[env-name].[region].azurecontainerapps.io/demo1, the Spring Cloud gateway should be able to route the request to your demo1 app, and you should be able the get the response like this:
